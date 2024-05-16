@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.demo.dao.ImageUploadDao">
+    <resultMap id="imageMap" type="com.example.demo.entry.Image">
+        <id column="id" property="id"/>
+        <result column="imagebase64" property="imageBase64"/>
+        <result column="uploadtime" property="uploadTime"/>
+        <result column="ip" property="ip"/>
+        <result column="md5" property="md5"/>
+        <result column="imagedecribe" property="imageDescride"/>
+    </resultMap>
+
+    <insert id="insert" parameterType="com.example.demo.entry.Image" useGeneratedKeys="true" keyProperty="id" >
+        insert into imagelog (imageBase64, uploadtime, imagedecribe,ip,md5)
+        values (#{imageBase64}, NOW(), #{imageDescride},#{ip},#{md5})
+    </insert>
+
+    <insert id="insertDecride" parameterType="com.example.demo.entry.Image" >
+        update imagelog
+        set imagedecribe = #{imageDescride}
+        where id = #{id}
+    </insert>
+    <select id="queryAll" resultMap="imageMap" parameterType="string">
+        SELECT id,ip,imagedecribe, uploadtime,imagebase64 FROM `imagelog` where ip = #{ip}
+    </select>
+
+    <select id="queryBase4" resultType="string" parameterType="string">
+        select  imagedecribe from imagelog where md5 = #{md5}
+    </select>
+
+    <delete id="deleteId" parameterType="int" >
+        delete  from imagelog where id = #{id}
+    </delete>
+</mapper>

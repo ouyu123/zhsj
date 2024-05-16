@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>图片识别</title>
+    <link rel="stylesheet" th:href="@{/webjars/layui/2.8.18/css/layui.css}">
+    <link rel="stylesheet" th:href="@{/index.css}">
+    <script th:src="@{/webjars/layui/2.8.18/layui.js}"></script>
+</head>
+<body>
+<header>图像识别</header>
+<article>
+    <div class="layui-container">
+        <div class="layui-row">
+            <form class="layui-form layui-form-pane" action="">
+                <div class="layui-form-item layui-form-text">
+                    <label class="layui-form-label">图片上传</label>
+                    <div class="layui-input-block">
+                        <button type="button" class="layui-btn" id="upload-btn">
+                            <i class="layui-icon layui-icon-upload"></i> 图单片上传
+                        </button>
+                    </div>
+                </div>
+            <div class="layui-form-item layui-form-text">
+                 <label class="layui-form-label">图片预览</label>
+                 <div class="layui-input-block">
+                     <img alt="" id="upload-img" style="width: auto;height: auto">
+                 </div>
+            </div>
+                <div class="layui-form-item layui-form-text">
+                    <label class="layui-form-label">图片描述</label>
+                    <div class="layui-input-block">
+                        <textarea id="imageDescribe" placeholder="请上传图片" class="layui-textarea" th:text="请上传图片"></textarea>
+                    </div>
+                </div>
+                <div class="layui-btn-container">
+                    <button  id="getLogs" type="button" class="layui-btn layui-btn-radius">历史记录</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</article>
+</body>
+</html>
+<script>
+    layui.use(function(){
+        var upload = layui.upload;
+        var layer = layui.layer;
+        var element = layui.element;
+        var $ = layui.$;
+        // 单图片上传
+        var uploadInst = upload.render({
+            elem: '#upload-btn',
+            url: '/upload/image', // 实际使用时改成您自己的上传接口即可。
+            before: function(obj){
+                // 预读本地文件示例，不支持ie8
+                obj.preview(function(index, file, result){
+                    $('#upload-img').attr('src', result); // 图片链接（base64）
+                });
+
+                element.progress('filter-demo', '0%'); // 进度条复位
+                layer.msg('上传中', {icon: 16, time: 0});
+            },
+            done: function(res){
+                // 若上传失败
+                if(res.code > 0){
+                    return layer.msg('上传失败');
+                }else{
+                    $('#imageDescribe').text(res.data["decride"]);
+
+                }
+                // 上传成功的一些操作
+                // …
+
+                $('#upload-img').html(''); // 置空上传失败的状态
+            },
+            error: function(){
+                // 演示失败状态，并实现重传
+                var demoText = $('#upload-text');
+                demoText.html('<span style="color: #FF5722;">上传失败</span> <a class="layui-btn layui-btn-xs demo-reload">重试</a>');
+                demoText.find('.demo-reload').on('click', function(){
+                    uploadInst.upload();
+                });
+            },
+            // 进度条
+            progress: function(n, elem, e){
+                element.progress('filter-demo', n + '%'); // 可配合 layui 进度条元素使用
+                if(n == 100){
+                    layer.msg('上传完毕', {icon: 1});
+                }
+            }
+        });
+    });
+
+</script>
+<script>
+    // 初始化layui框架
+    layui.use(['layer'], function() {
+        var layer = layui.layer;
+
+        // 获取按钮元素
+        var getLogsButton = document.getElementById("getLogs");
+
+        // 添加点击事件监听器
+        getLogsButton.addEventListener("click", function() {
+            // 显示加载层
+            var index = layer.load(2);
+
+            // 将页面重定向到logList页面
+            window.location.href = "/upload/getLogs"; // 替换为Listlog页面的URL
+
+            // 关闭加载层
+            setTimeout(function() {
+                layer.close(index);
+            }, 1000); // 延迟1秒钟，模拟页面加载时间
+        });
+    });
+</script>

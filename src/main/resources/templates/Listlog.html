@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>图片识别</title>
+    <link rel="stylesheet" th:href="@{/index.css}">
+    <!-- 请勿在项目正式环境中引用该 layui.css 地址 -->
+    <link href="//unpkg.com/layui@2.9.9/dist/css/layui.css" rel="stylesheet">
+</head>
+<body>
+
+<header>日志记录</header>
+<table class="layui-hide" id="ID-table-demo-filter"></table>
+
+<!-- 请勿在项目正式环境中引用该 layui.js 地址 -->
+<script src="//unpkg.com/layui@2.9.9/dist/layui.js"></script>
+<script>
+    layui.use(function(){
+        var $ = layui.$;
+        var table = layui.table;
+        // 渲染
+        table.render({
+            elem: '#ID-table-demo-filter',
+            url:'/upload/getIpLogs', // 此处为静态模拟数据，实际使用时需换成真实接口
+            toolbar: 'default',
+            method: 'post', // 设置为 POST 请求
+            height: 500,
+            cols: [function(){
+                var arr = [
+                    {field:'id', title:'ID', width:80, fixed: 'left'},
+                    {field:'imageBase64', title:'image', width:250, templet: '#imageTpl'}, // 使用自定义列模板显示图片
+                    {field:'ip', title:'ip', width:120},
+                    {field:'uploadTime', title:'上传时间'},
+                    {field:'imageDescride', title:'图片识别结果'},
+                ];
+
+                // 初始化筛选状态
+                var local = layui.data('table-filter-test'); // 获取对应的本地记录
+                layui.each(arr, function(index, item){
+                    if(item.field in local){
+                        item.hide = local[item.field];
+                    }
+                });
+                return arr;
+            }() ],
+            done: function(){
+                // 记录筛选状态
+                var that = this;
+                that.elem.next().on('mousedown', 'input[lay-filter="LAY_TABLE_TOOL_COLS"]+', function(){
+                    var input = $(this).prev()[0];
+                    // 此处表名可任意定义
+                    layui.data('table-filter-test', {
+                        key: input.name
+                        ,value: input.checked
+                    })
+                });
+            }
+        });
+    });
+</script>
+
+</body>
+<!-- 列模板，用于显示本地图片 -->
+<script type="text/html" id="imageTpl">
+    <img src="../{{d.imageBase64}}" style=" width:100px; height: 100px;" alt="Image">
+</script>
+</html>
